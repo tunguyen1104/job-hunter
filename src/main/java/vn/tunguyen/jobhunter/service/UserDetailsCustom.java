@@ -21,6 +21,9 @@ public class UserDetailsCustom implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         vn.tunguyen.jobhunter.domain.User user = this.userService.getUserByUsername(username);
 
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
         return new User(
                 user.getEmail(),
                 user.getPassword(),

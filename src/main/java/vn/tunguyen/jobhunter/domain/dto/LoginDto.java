@@ -1,7 +1,13 @@
 package vn.tunguyen.jobhunter.domain.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+
 public class LoginDto {
+
+    @NotEmpty(message = "Username cannot be empty")
     private String username;
+
+    @NotEmpty(message = "Password cannot be empty")
     private String password;
 
     public String getUsername() {
@@ -19,5 +25,4 @@ public class LoginDto {
     public void setPassword(String password) {
         this.password = password;
     }
-
 }
