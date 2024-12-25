@@ -1,5 +1,6 @@
 package vn.tunguyen.jobhunter.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -10,9 +11,13 @@ import vn.tunguyen.jobhunter.repository.UserRepository;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    public UserService(UserRepository userRepository) {
+    private final PasswordEncoder passwordEncoder;
+    
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
+
     public User fetchUserById(long id) {
         Optional<User> userOptional = this.userRepository.findById(id);
         if (userOptional.isPresent()) {
@@ -20,10 +25,12 @@ public class UserService {
         }
         return null;
     }
+
     public List<User> fetchAllUser() {
         return this.userRepository.findAll();
     }
-    public User handleUpdateUser(User reqUser) {
+
+    public User updateUser(User reqUser) {
         User currentUser = this.fetchUserById(reqUser.getId());
         if (currentUser != null) {
             currentUser.setEmail(reqUser.getEmail());
@@ -34,10 +41,18 @@ public class UserService {
         }
         return currentUser;
     }
-    public User handleCreateUser(User user) {
-        return this.userRepository.save(user);
+
+    public User createUser(final User user) {
+        final String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        return userRepository.save(user);
     }
-    public void handleDeleteUser(long id) {
+
+    public void deleteUser(long id) {
         this.userRepository.deleteById(id);
+    }
+
+    public User getUserByUsername(String username) {
+        return this.userRepository.findByEmail(username);
     }
 }

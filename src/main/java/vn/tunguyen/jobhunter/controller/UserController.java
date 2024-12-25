@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import vn.tunguyen.jobhunter.domain.User;
 import vn.tunguyen.jobhunter.service.UserService;
-import vn.tunguyen.jobhunter.service.error.IdInvalidException;
+import vn.tunguyen.jobhunter.util.error.IdInvalidException;
 
 import java.util.List;
 
@@ -21,19 +21,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 public class UserController {
     private final UserService userService;
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping("/users")
     public ResponseEntity<User> createNewUser(@RequestBody User postManUser) {
-        User newUser = this.userService.handleCreateUser(postManUser);
+        User newUser = this.userService.createUser(postManUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable("id") long id) {
-        this.userService.handleDeleteUser(id);
+        this.userService.deleteUser(id);
         return ResponseEntity.ok("TuNguyen");
     }
 
@@ -53,7 +54,7 @@ public class UserController {
 
     @PutMapping("/users")
     public ResponseEntity<User> updateUser(@RequestBody User user) {
-        User newUser = this.userService.handleUpdateUser(user);
+        User newUser = this.userService.updateUser(user);
         return ResponseEntity.ok(newUser);
     }
 }
