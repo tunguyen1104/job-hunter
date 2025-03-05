@@ -44,4 +44,10 @@ public class Company {
 
         this.createdAt = Instant.now();
     }
+
+    @PreUpdate
+    public void handleBeforeUpdate() {
+        this.updatedBy = SecurityUtil.getCurrentUserLogin().orElse("");
+        this.updatedAt = Instant.now();
+    }
 }
