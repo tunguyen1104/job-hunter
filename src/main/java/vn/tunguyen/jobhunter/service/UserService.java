@@ -1,11 +1,15 @@
 package vn.tunguyen.jobhunter.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.List;
 import java.util.Optional;
 
 import vn.tunguyen.jobhunter.domain.User;
+import vn.tunguyen.jobhunter.domain.dto.Meta;
+import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.tunguyen.jobhunter.repository.UserRepository;
 
 @Service
@@ -26,8 +30,21 @@ public class UserService {
         return null;
     }
 
-    public List<User> fetchAllUser() {
-        return this.userRepository.findAll();
+    public ResultPaginationDTO getAllUsers(Specification<User> spec, Pageable pageable) {
+        Page<User> pageUser = this.userRepository.findAll(spec, pageable);
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+        Meta mt = new Meta();
+
+        mt.setPage(pageable.getPageNumber() + 1);
+        mt.setPageSize(pageable.getPageSize());
+
+        mt.setPages(pageUser.getTotalPages());
+        mt.setTotal(pageUser.getTotalElements());
+
+        rs.setMeta(mt);
+        rs.setResult(pageUser.getContent());
+
+        return rs;
     }
 
     public User updateUser(User reqUser) {
