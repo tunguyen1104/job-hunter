@@ -3,11 +3,15 @@ package vn.tunguyen.jobhunter.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import vn.tunguyen.jobhunter.domain.User;
+import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.tunguyen.jobhunter.service.UserService;
 import vn.tunguyen.jobhunter.util.error.IdInvalidException;
 
-import java.util.List;
+import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +20,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.turkraft.springfilter.boot.Filter;
 
 @RestController
 public class UserController {
@@ -41,15 +47,19 @@ public class UserController {
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") long id) throws IdInvalidException {
         if (id >= 1500) {
-            throw new IdInvalidException("Id khong lon hon 1501");
+            throw new IdInvalidException("Id not greater than 1501");
         }
         User fetchUser = this.userService.fetchUserById(id);
         return ResponseEntity.ok(fetchUser);
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUser() {
-        return ResponseEntity.ok(this.userService.fetchAllUser());
+    public ResponseEntity<ResultPaginationDTO> getAllUser(
+            @Filter Specification<User> spec,
+            Pageable pageable) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                this.userService.getAllUsers(spec, pageable));
     }
 
     @PutMapping("/users")
