@@ -2,8 +2,11 @@ package vn.tunguyen.jobhunter.controller;
 
 import jakarta.validation.Valid;
 
-import java.util.List;
+import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,8 +15,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.turkraft.springfilter.boot.Filter;
+
 import vn.tunguyen.jobhunter.domain.Company;
+import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.tunguyen.jobhunter.service.CompanyService;
 
 @RestController
@@ -31,16 +39,17 @@ public class CompanyController {
     }
 
     @GetMapping("/companies")
-    public List<Company> getAllCompanies() {
-        return companyService.getAllCompanies();
+    public ResponseEntity<ResultPaginationDTO> getAllCompanies(@Filter Specification<Company> spec, Pageable pageable) {
+        return ResponseEntity.ok(this.companyService.getAllCompanies(spec, pageable));
     }
 
     @GetMapping("/companies/{id}")
     public ResponseEntity<Company> getCompany(@PathVariable Long id) {
         return companyService.getCompany(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+                            .map(ResponseEntity::ok)
+                            .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
 
     @PutMapping("/companies")
     public ResponseEntity<Company> updateCompany(@Valid @RequestBody Company reqCompany) {
