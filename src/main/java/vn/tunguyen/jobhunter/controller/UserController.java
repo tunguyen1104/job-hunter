@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.tunguyen.jobhunter.domain.User;
 import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.tunguyen.jobhunter.service.UserService;
+import vn.tunguyen.jobhunter.util.annotation.ApiMessage;
 import vn.tunguyen.jobhunter.util.error.IdInvalidException;
 
 import java.util.Optional;
@@ -54,6 +55,7 @@ public class UserController {
     }
 
     @GetMapping("/users")
+    @ApiMessage("Get all users")
     public ResponseEntity<ResultPaginationDTO> getAllUser(
             @Filter Specification<User> spec,
             Pageable pageable) {
