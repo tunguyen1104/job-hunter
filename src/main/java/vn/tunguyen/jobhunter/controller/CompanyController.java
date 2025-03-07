@@ -23,6 +23,7 @@ import com.turkraft.springfilter.boot.Filter;
 import vn.tunguyen.jobhunter.domain.Company;
 import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.tunguyen.jobhunter.service.CompanyService;
+import vn.tunguyen.jobhunter.util.annotation.ApiMessage;
 
 @RestController
 public class CompanyController {
@@ -39,6 +40,7 @@ public class CompanyController {
     }
 
     @GetMapping("/companies")
+    @ApiMessage("Get all companies")
     public ResponseEntity<ResultPaginationDTO> getAllCompanies(@Filter Specification<Company> spec, Pageable pageable) {
         return ResponseEntity.ok(this.companyService.getAllCompanies(spec, pageable));
     }
