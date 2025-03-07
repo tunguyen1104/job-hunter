@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +26,7 @@ import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.tunguyen.jobhunter.service.CompanyService;
 import vn.tunguyen.jobhunter.util.annotation.ApiMessage;
 
+@RequestMapping("/api/${api.version}")
 @RestController
 public class CompanyController {
     private final CompanyService companyService;
