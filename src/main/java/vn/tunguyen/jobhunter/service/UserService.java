@@ -10,14 +10,19 @@ import java.util.Optional;
 import vn.tunguyen.jobhunter.domain.User;
 import vn.tunguyen.jobhunter.domain.dto.Meta;
 import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserCreateDTO;
 import vn.tunguyen.jobhunter.repository.UserRepository;
+import vn.tunguyen.jobhunter.service.mapper.UserMapper;
+import vn.tunguyen.jobhunter.util.error.IdInvalidException;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    private final UserMapper userMapper;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
+        this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -59,10 +64,23 @@ public class UserService {
         return currentUser;
     }
 
-    public User createUser(final User user) {
-        final String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-        return userRepository.save(user);
+    
+
+    public UserCreateDTO createUser(User user) {
+        this.validateEmailUniqueness(user.getEmail());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User savedUser = userRepository.save(user);
+        return userMapper.toDTO(savedUser);
+    }
+
+    public void validateEmailUniqueness(String email){
+        if (userRepository.existsByEmail(email)) {
+            throw new IdInvalidException("Email " + email + " already exists, please use another email.");
+        }
+    }
+
+    public boolean isEmailExist(String email) {
+        return this.userRepository.existsByEmail(email);
     }
 
     public void deleteUser(long id) {

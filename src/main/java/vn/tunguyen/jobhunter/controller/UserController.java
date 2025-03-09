@@ -4,13 +4,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import vn.tunguyen.jobhunter.domain.User;
 import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserCreateDTO;
 import vn.tunguyen.jobhunter.service.UserService;
 import vn.tunguyen.jobhunter.util.annotation.ApiMessage;
 import vn.tunguyen.jobhunter.util.error.IdInvalidException;
 
-import java.util.Optional;
-
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.turkraft.springfilter.boot.Filter;
 
@@ -36,9 +33,9 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createNewUser(@RequestBody User postManUser) {
-        User newUser = this.userService.createUser(postManUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    public ResponseEntity<UserCreateDTO> createNewUser(@RequestBody User postManUser) {
+        UserCreateDTO createdUser = userService.createUser(postManUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @DeleteMapping("/users/{id}")
@@ -48,7 +45,7 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") long id) throws IdInvalidException {
+    public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
         if (id >= 1500) {
             throw new IdInvalidException("Id not greater than 1501");
         }
