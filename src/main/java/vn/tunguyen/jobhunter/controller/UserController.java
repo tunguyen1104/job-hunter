@@ -40,9 +40,9 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") long id) {
         this.userService.deleteUser(id);
-        return ResponseEntity.ok("TuNguyen");
+        return ResponseEntity.ok(null);
     }
 
     @GetMapping("/users/{id}")

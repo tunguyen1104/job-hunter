@@ -90,6 +90,9 @@ public class UserService {
     }
 
     public void deleteUser(long id) {
+        if (!userRepository.existsById(id)) {
+            throw new IdInvalidException("User not found with ID: " + id);
+        }
         this.userRepository.deleteById(id);
     }
 
