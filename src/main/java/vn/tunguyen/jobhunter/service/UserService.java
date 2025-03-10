@@ -1,5 +1,8 @@
 package vn.tunguyen.jobhunter.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -48,6 +51,11 @@ public class UserService {
         rs.setMeta(mt);
         rs.setResult(pageUser.getContent());
 
+        List<UserDTO> listUser = pageUser.getContent()
+                .stream().map(item -> userMapper.toDTO(item))
+                .collect(Collectors.toList());
+        
+        rs.setResult(listUser);
         return rs;
     }
 
