@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.tunguyen.jobhunter.domain.User;
 import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.tunguyen.jobhunter.domain.dto.UserCreateDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserDTO;
 import vn.tunguyen.jobhunter.domain.dto.UserUpdateDTO;
 import vn.tunguyen.jobhunter.service.UserService;
 import vn.tunguyen.jobhunter.util.annotation.ApiMessage;
-import vn.tunguyen.jobhunter.util.error.IdInvalidException;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -46,8 +46,8 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
-        User fetchUser = this.userService.fetchUserById(id);
+    public ResponseEntity<UserDTO> getUserById(@PathVariable("id") long id) {
+        UserDTO fetchUser = this.userService.fetchUserById(id);
         return ResponseEntity.ok(fetchUser);
     }
 

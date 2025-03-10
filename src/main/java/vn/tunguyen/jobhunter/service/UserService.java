@@ -5,12 +5,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
 import vn.tunguyen.jobhunter.domain.User;
 import vn.tunguyen.jobhunter.domain.dto.Meta;
 import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.tunguyen.jobhunter.domain.dto.UserCreateDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserDTO;
 import vn.tunguyen.jobhunter.domain.dto.UserUpdateDTO;
 import vn.tunguyen.jobhunter.repository.UserRepository;
 import vn.tunguyen.jobhunter.service.mapper.UserMapper;
@@ -28,13 +28,11 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User fetchUserById(long id) {
-        Optional<User> userOptional = this.userRepository.findById(id);
-        if (userOptional.isPresent()) {
-            return userOptional.get();
-        }
-        return null;
-    }
+    public UserDTO fetchUserById(long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IdInvalidException("User not found with ID: " + id));
+        return userMapper.toDTO(user);
+    }    
 
     public ResultPaginationDTO getAllUsers(Specification<User> spec, Pageable pageable) {
         Page<User> pageUser = this.userRepository.findAll(spec, pageable);
@@ -70,7 +68,7 @@ public class UserService {
         this.validateEmailUniqueness(user.getEmail());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = this.userRepository.save(user);
-        return userMapper.toDTO(savedUser);
+        return userMapper.toCreateDTO(savedUser);
     }
 
     public void validateEmailUniqueness(String email){
