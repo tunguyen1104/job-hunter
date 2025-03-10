@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import vn.tunguyen.jobhunter.domain.User;
 import vn.tunguyen.jobhunter.domain.dto.UserCreateDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserDTO;
 import vn.tunguyen.jobhunter.domain.dto.UserUpdateDTO;
 
 @Component
@@ -21,7 +22,7 @@ public class UserMapper {
                 .build();
     }
 
-    public UserCreateDTO toDTO(User user) {
+    public UserCreateDTO toCreateDTO(User user) {
         return UserCreateDTO.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -43,5 +44,18 @@ public class UserMapper {
                 .updatedAt(user.getUpdatedAt())
                 .build();
 
+    }
+
+    public UserDTO toDTO(User user) {
+        return UserDTO.builder()
+        .id(user.getId())
+        .name(user.getName())
+        .email(user.getEmail())
+        .gender(user.getGender())
+        .address(user.getAddress())
+        .age(user.getAge())
+        .updatedAt(user.getUpdatedAt())
+        .createdAt(user.getCreatedAt())
+        .build();
     }
 }
