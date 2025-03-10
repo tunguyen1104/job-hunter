@@ -4,13 +4,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import vn.tunguyen.jobhunter.domain.User;
 import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserCreateDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserUpdateDTO;
 import vn.tunguyen.jobhunter.service.UserService;
 import vn.tunguyen.jobhunter.util.annotation.ApiMessage;
-import vn.tunguyen.jobhunter.util.error.IdInvalidException;
 
-import java.util.Optional;
-
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.turkraft.springfilter.boot.Filter;
 
@@ -36,23 +34,20 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createNewUser(@RequestBody User postManUser) {
-        User newUser = this.userService.createUser(postManUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    public ResponseEntity<UserCreateDTO> createNewUser(@RequestBody User postManUser) {
+        UserCreateDTO createdUser = userService.createUser(postManUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") long id) {
         this.userService.deleteUser(id);
-        return ResponseEntity.ok("TuNguyen");
+        return ResponseEntity.ok(null);
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") long id) throws IdInvalidException {
-        if (id >= 1500) {
-            throw new IdInvalidException("Id not greater than 1501");
-        }
-        User fetchUser = this.userService.fetchUserById(id);
+    public ResponseEntity<UserDTO> getUserById(@PathVariable("id") long id) {
+        UserDTO fetchUser = this.userService.fetchUserById(id);
         return ResponseEntity.ok(fetchUser);
     }
 
@@ -67,8 +62,8 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public ResponseEntity<User> updateUser(@RequestBody User user) {
-        User newUser = this.userService.updateUser(user);
+    public ResponseEntity<UserUpdateDTO> updateUser(@RequestBody User user) {
+        UserUpdateDTO newUser = this.userService.updateUser(user);
         return ResponseEntity.ok(newUser);
     }
 }

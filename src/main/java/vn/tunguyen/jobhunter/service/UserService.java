@@ -1,34 +1,41 @@
 package vn.tunguyen.jobhunter.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
 import vn.tunguyen.jobhunter.domain.User;
 import vn.tunguyen.jobhunter.domain.dto.Meta;
 import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserCreateDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserUpdateDTO;
 import vn.tunguyen.jobhunter.repository.UserRepository;
+import vn.tunguyen.jobhunter.service.mapper.UserMapper;
+import vn.tunguyen.jobhunter.util.error.IdInvalidException;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    private final UserMapper userMapper;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
+        this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User fetchUserById(long id) {
-        Optional<User> userOptional = this.userRepository.findById(id);
-        if (userOptional.isPresent()) {
-            return userOptional.get();
-        }
-        return null;
-    }
+    public UserDTO fetchUserById(long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IdInvalidException("User not found with ID: " + id));
+        return userMapper.toDTO(user);
+    }    
 
     public ResultPaginationDTO getAllUsers(Specification<User> spec, Pageable pageable) {
         Page<User> pageUser = this.userRepository.findAll(spec, pageable);
@@ -44,28 +51,48 @@ public class UserService {
         rs.setMeta(mt);
         rs.setResult(pageUser.getContent());
 
+        List<UserDTO> listUser = pageUser.getContent()
+                .stream().map(item -> userMapper.toDTO(item))
+                .collect(Collectors.toList());
+        
+        rs.setResult(listUser);
         return rs;
     }
 
-    public User updateUser(User reqUser) {
-        User currentUser = this.fetchUserById(reqUser.getId());
-        if (currentUser != null) {
-            currentUser.setEmail(reqUser.getEmail());
-            currentUser.setName(reqUser.getName());
-            currentUser.setPassword(reqUser.getPassword());
+    public UserUpdateDTO updateUser(User reqUser) {
+        User existingUser = userRepository.findById(reqUser.getId())
+                .orElseThrow(() -> new IdInvalidException("User not found with ID: " + reqUser.getId()));
 
-            currentUser = this.userRepository.save(currentUser);
-        }
-        return currentUser;
+        existingUser.setAddress(reqUser.getAddress());
+        existingUser.setGender(reqUser.getGender());
+        existingUser.setAge(reqUser.getAge());
+        existingUser.setName(reqUser.getName());
+
+        User savedUser = userRepository.save(existingUser);
+        return userMapper.toUpdateDTO(savedUser);
     }
 
-    public User createUser(final User user) {
-        final String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-        return userRepository.save(user);
+    public UserCreateDTO createUser(User user) {
+        this.validateEmailUniqueness(user.getEmail());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User savedUser = this.userRepository.save(user);
+        return userMapper.toCreateDTO(savedUser);
+    }
+
+    public void validateEmailUniqueness(String email){
+        if (this.userRepository.existsByEmail(email)) {
+            throw new IdInvalidException("Email " + email + " already exists, please use another email.");
+        }
+    }
+
+    public boolean isEmailExist(String email) {
+        return this.userRepository.existsByEmail(email);
     }
 
     public void deleteUser(long id) {
+        if (!userRepository.existsById(id)) {
+            throw new IdInvalidException("User not found with ID: " + id);
+        }
         this.userRepository.deleteById(id);
     }
 
