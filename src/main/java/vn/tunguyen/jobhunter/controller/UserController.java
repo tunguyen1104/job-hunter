@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.tunguyen.jobhunter.domain.User;
 import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.tunguyen.jobhunter.domain.dto.UserCreateDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserUpdateDTO;
 import vn.tunguyen.jobhunter.service.UserService;
 import vn.tunguyen.jobhunter.util.annotation.ApiMessage;
 import vn.tunguyen.jobhunter.util.error.IdInvalidException;
@@ -46,9 +47,6 @@ public class UserController {
 
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
-        if (id >= 1500) {
-            throw new IdInvalidException("Id not greater than 1501");
-        }
         User fetchUser = this.userService.fetchUserById(id);
         return ResponseEntity.ok(fetchUser);
     }
@@ -64,8 +62,8 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public ResponseEntity<User> updateUser(@RequestBody User user) {
-        User newUser = this.userService.updateUser(user);
+    public ResponseEntity<UserUpdateDTO> updateUser(@RequestBody User user) {
+        UserUpdateDTO newUser = this.userService.updateUser(user);
         return ResponseEntity.ok(newUser);
     }
 }

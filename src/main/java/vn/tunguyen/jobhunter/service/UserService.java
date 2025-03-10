@@ -11,6 +11,7 @@ import vn.tunguyen.jobhunter.domain.User;
 import vn.tunguyen.jobhunter.domain.dto.Meta;
 import vn.tunguyen.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.tunguyen.jobhunter.domain.dto.UserCreateDTO;
+import vn.tunguyen.jobhunter.domain.dto.UserUpdateDTO;
 import vn.tunguyen.jobhunter.repository.UserRepository;
 import vn.tunguyen.jobhunter.service.mapper.UserMapper;
 import vn.tunguyen.jobhunter.util.error.IdInvalidException;
@@ -52,29 +53,28 @@ public class UserService {
         return rs;
     }
 
-    public User updateUser(User reqUser) {
-        User currentUser = this.fetchUserById(reqUser.getId());
-        if (currentUser != null) {
-            currentUser.setEmail(reqUser.getEmail());
-            currentUser.setName(reqUser.getName());
-            currentUser.setPassword(reqUser.getPassword());
+    public UserUpdateDTO updateUser(User reqUser) {
+        User existingUser = userRepository.findById(reqUser.getId())
+                .orElseThrow(() -> new IdInvalidException("User not found with ID: " + reqUser.getId()));
 
-            currentUser = this.userRepository.save(currentUser);
-        }
-        return currentUser;
+        existingUser.setAddress(reqUser.getAddress());
+        existingUser.setGender(reqUser.getGender());
+        existingUser.setAge(reqUser.getAge());
+        existingUser.setName(reqUser.getName());
+
+        User savedUser = userRepository.save(existingUser);
+        return userMapper.toUpdateDTO(savedUser);
     }
-
-    
 
     public UserCreateDTO createUser(User user) {
         this.validateEmailUniqueness(user.getEmail());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        User savedUser = userRepository.save(user);
+        User savedUser = this.userRepository.save(user);
         return userMapper.toDTO(savedUser);
     }
 
     public void validateEmailUniqueness(String email){
-        if (userRepository.existsByEmail(email)) {
+        if (this.userRepository.existsByEmail(email)) {
             throw new IdInvalidException("Email " + email + " already exists, please use another email.");
         }
     }
